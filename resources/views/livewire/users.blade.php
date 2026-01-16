@@ -1,5 +1,5 @@
-@section('title', 'Users List')
-@section('subTitle', 'Users List')
+@section('title', __('Users List'))
+@section('subTitle', __('Users List'))
 
 <div x-init="
     if (window.innerWidth < 768) {
@@ -13,7 +13,7 @@
                     class="card-header border-b border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700 py-4 px-6 flex items-center flex-wrap gap-3 justify-between">
                     <div class="flex items-center flex-wrap gap-3">
                         <div class="flex items-center gap-3">
-                            <span class="text-base font-medium text-secondary-light mb-0">Show</span>
+                            <span class="text-base font-medium text-secondary-light mb-0">{{ __('Show') }}</span>
                             <select wire:model.live="perPage"
                                 class="form-select form-select-sm w-auto dark:bg-neutral-600 dark:text-white border-neutral-200 dark:border-neutral-500 rounded-lg">
                                 <option value="10">10</option>
@@ -24,7 +24,7 @@
                         <form class="navbar-search relative">
                             <input type="text" wire:model.live.debounce.300ms="search"
                                 class="bg-white dark:bg-neutral-700 h-10 w-auto pl-10 pr-3 rounded-lg border border-neutral-200 dark:border-neutral-500"
-                                placeholder="Search">
+                                placeholder="{{ __('Search') }}">
                             <iconify-icon icon="ion:search-outline"
                                 class="icon absolute left-3 top-1/2 -translate-y-1/2 text-lg"></iconify-icon>
                         </form>
@@ -51,7 +51,7 @@
                         <button wire:click="create"
                             class="btn bg-info-600 hover:bg-info-700 text-white rounded-lg px-5 py-[11px] text-sm">
                             <iconify-icon icon="ic:baseline-plus" class="icon text-xl line-height-1"></iconify-icon>
-                            Add New User
+                            {{ __('New User') }}
                         </button>
                     </div>
                 </div>
@@ -61,21 +61,17 @@
                             <table class="table bordered-table sm-table mb-0">
                                 <thead>
                                     <tr>
-                                        <th scope="col">ID</th>
-                                        <th scope="col">Join Date</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Email</th>
-                                        <th scope="col">Department</th>
-                                        <th scope="col">Designation</th>
-                                        <th scope="col" class="text-center">Status</th>
-                                        <th scope="col" class="text-center">Action</th>
+                                        <th scope="col">{{ __('Name') }}</th>
+                                        <th scope="col">{{ __('Email') }}</th>
+                                        <th scope="col">{{ __('Department') }}</th>
+                                        <th scope="col">{{ __('Designation') }}</th>
+                                        <th scope="col" class="text-center">{{ __('Status') }}</th>
+                                        <th scope="col" class="text-center">{{ __('Action') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($users as $user)
                                         <tr>
-                                            <td>{{ $user->id }}</td>
-                                            <td>{{ $user->created_at->format('d M Y') }}</td>
                                             <td>
                                                 <div class="flex items-center">
                                                     <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('assets/images/user.png') }}"
@@ -95,10 +91,10 @@
                                             <td class="text-center">
                                                 @if($user->status == 'Active')
                                                     <span
-                                                        class="bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 border border-success-600 px-6 py-1.5 rounded font-medium text-sm">Active</span>
+                                                        class="bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 border border-success-600 px-6 py-1.5 rounded font-medium text-sm">{{ __('Active') }}</span>
                                                 @else
                                                     <span
-                                                        class="bg-neutral-200 dark:bg-neutral-600 text-neutral-600 border border-neutral-400 px-6 py-1.5 rounded font-medium text-sm">Inactive</span>
+                                                        class="bg-neutral-200 dark:bg-neutral-600 text-neutral-600 border border-neutral-400 px-6 py-1.5 rounded font-medium text-sm">{{ __('Inactive') }}</span>
                                                 @endif
                                             </td>
                                             <td class="text-center">
@@ -117,7 +113,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="text-center py-4">No users found.</td>
+                                            <td colspan="8" class="text-center py-4">{{ __('No users found.') }}</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -145,14 +141,14 @@
                                                     <li>
                                                         <button wire:click="edit({{ $user->id }})" @click="open = false"
                                                             class="w-full text-start px-4 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-600 rounded dark:hover:text-white flex items-center gap-2">
-                                                            Edit
+                                                            {{ __('Edit') }}
                                                         </button>
                                                     </li>
                                                     <li>
                                                         <button wire:click="confirmDelete({{ $user->id }})"
                                                             @click="open = false"
                                                             class="w-full text-start px-4 py-2.5 hover:bg-danger-100 dark:hover:bg-danger-600/25 rounded hover:text-danger-500 dark:hover:text-danger-600 flex items-center gap-2">
-                                                            Delete
+                                                            {{ __('Delete') }}
                                                         </button>
                                                     </li>
                                                 </ul>
@@ -184,7 +180,7 @@
                                                         {{ $user->department ?? '-' }}
                                                     </h6>
                                                     <span
-                                                        class="text-secondary-light dark:text-neutral-500 text-xs">Department</span>
+                                                        class="text-secondary-light dark:text-neutral-500 text-xs">{{ __('Department') }}</span>
                                                 </div>
                                                 <div class="text-center w-1/2">
                                                     <h6
@@ -192,17 +188,17 @@
                                                         {{ $user->designation ?? '-' }}
                                                     </h6>
                                                     <span
-                                                        class="text-secondary-light dark:text-neutral-500 text-xs">Designation</span>
+                                                        class="text-secondary-light dark:text-neutral-500 text-xs">{{ __('Designation') }}</span>
                                                 </div>
                                             </div>
 
                                             <div class="mt-4">
                                                 @if ($user->status == 'Active')
                                                     <span
-                                                        class="badge bg-success-subtle text-success-600 px-3 py-1 rounded-full text-sm font-medium border border-success-200 dark:border-success-800/30">Active</span>
+                                                        class="badge bg-success-subtle text-success-600 px-3 py-1 rounded-full text-sm font-medium border border-success-200 dark:border-success-800/30">{{ __('Active') }}</span>
                                                 @else
                                                     <span
-                                                        class="badge bg-danger-subtle text-danger-600 px-3 py-1 rounded-full text-sm font-medium border border-danger-200 dark:border-danger-800/30">Inactive</span>
+                                                        class="badge bg-danger-subtle text-danger-600 px-3 py-1 rounded-full text-sm font-medium border border-danger-200 dark:border-danger-800/30">{{ __('Inactive') }}</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -210,7 +206,7 @@
                                 </div>
                             @empty
                                 <div class="col-span-12 text-center py-10 text-neutral-500">
-                                    No users found.
+                                    {{ __('No users found.') }}
                                 </div>
                             @endforelse
                         </div>
@@ -239,7 +235,7 @@
             x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
 
             <div class="p-6 border-b border-neutral-200 dark:border-neutral-600 flex justify-between items-center">
-                <h5 class="text-lg font-semibold">{{ $userId ? 'Edit User' : 'Add New User' }}</h5>
+                <h5 class="text-lg font-semibold">{{ $userId ? __('Edit User') : __('Add New User') }}</h5>
                 <button @click="open = false; $wire.closeOffcanvas()" type="button"
                     class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-300 dark:hover:text-white">
                     <iconify-icon icon="radix-icons:cross-2" class="text-xl"></iconify-icon>
@@ -249,14 +245,14 @@
             <div class="p-6">
                 <form wire:submit.prevent="save">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Name</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('Name') }}</label>
                         <input type="text" wire:model="name"
                             class="form-control w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
                         @error('name') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Email</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('Email') }}</label>
                         <input type="email" wire:model="email"
                             class="form-control w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
                         @error('email') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
@@ -264,7 +260,7 @@
 
                     @if(!$userId)
                         <div class="mb-4">
-                            <label class="block text-sm font-medium mb-2">Password</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('Password') }}</label>
                             <input type="password" wire:model="password"
                                 class="form-control w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
                             @error('password') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
@@ -272,33 +268,33 @@
                     @endif
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Department</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('Department') }}</label>
                         <input type="text" wire:model="department"
                             class="form-control w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
                         @error('department') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Designation</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('Designation') }}</label>
                         <input type="text" wire:model="designation"
                             class="form-control w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
                         @error('designation') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium mb-2">Status</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('Status') }}</label>
                         <select wire:model="status"
                             class="form-select w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
+                            <option value="Active">{{ __('Active') }}</option>
+                            <option value="Inactive">{{ __('Inactive') }}</option>
                         </select>
                         @error('status') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="flex justify-end gap-2 mt-6">
                         <button type="button" @click="open = false; $wire.closeOffcanvas()"
-                            class="btn btn-secondary-500 px-4 py-2 rounded-lg">Cancel</button>
-                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-lg">Save</button>
+                            class="btn btn-secondary-500 px-4 py-2 rounded-lg">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-lg">{{ __('Save') }}</button>
                     </div>
                 </form>
             </div>
@@ -314,7 +310,7 @@
             <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
                 <!-- Modal header -->
                 <div class="flex items-center justify-between px-6 py-3 border-b rounded-t dark:border-gray-600">
-                    <h5 class="modal-title text-xl font-semibold">Confirm Delete</h5>
+                    <h5 class="modal-title text-xl font-semibold">{{ __('Confirm Delete') }}</h5>
                     <button @click="open = false; $wire.closeDeleteModal()" type="button"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -329,14 +325,14 @@
                 <div class="flex flex-col gap-2 p-6 text-center">
                     <iconify-icon icon="fluent:delete-24-regular"
                         class="text-5xl text-danger-600 mb-4 mx-auto"></iconify-icon>
-                    <h3 class="text-lg font-semibold mb-2">Are you sure?</h3>
-                    <p class="text-neutral-500 mb-6">You won't be able to revert this!</p>
+                    <h3 class="text-lg font-semibold mb-2">{{ __('Are you sure?') }}</h3>
+                    <p class="text-neutral-500 mb-6">{{ __("You won't be able to revert this!") }}</p>
 
                     <div class="flex justify-center gap-3">
                         <button @click="open = false; $wire.closeDeleteModal()"
-                            class="btn btn-secondary-500 px-4 py-2 rounded-lg">Cancel</button>
-                        <button wire:click="delete" class="btn btn-danger-600 px-4 py-2 rounded-lg">Yes, delete
-                            it!</button>
+                            class="btn btn-secondary-500 px-4 py-2 rounded-lg">{{ __('Cancel') }}</button>
+                        <button wire:click="delete"
+                            class="btn btn-danger-600 px-4 py-2 rounded-lg">{{ __('Yes, delete it!') }}</button>
                     </div>
                 </div>
             </div>

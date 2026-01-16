@@ -4,7 +4,7 @@
         <li class="font-medium">
             <a href="index.php" class="flex items-center gap-2 hover:text-primary-600">
                 <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                Dashboard
+                {{ __('Dashboard') }}
             </a>
         </li>
         <li class="-mt-0.5">

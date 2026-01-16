@@ -7,6 +7,8 @@ use App\Livewire\Auth\Register;
 use App\Livewire\Auth\ForgotPassword;
 use Illuminate\Support\Facades\Auth;
 
+Route::get('lang/{locale}', [App\Http\Controllers\LanguageController::class, 'switch'])->name('lang.switch');
+
 Route::get('/', function () {
     return view('welcome');
 })->middleware('auth')->name('home');

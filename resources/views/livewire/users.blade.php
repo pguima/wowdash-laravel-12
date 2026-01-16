@@ -31,25 +31,25 @@
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <button wire:click="exportCsv"
-                            class="btn border border-neutral-200 text-neutral-500 hover:bg-neutral-200 text-dark rounded-lg px-5 py-[11px]">
+                            class="btn border border-neutral-200 text-neutral-500 hover:bg-neutral-200 text-dark rounded-lg px-5 py-[11px] text-sm">
                             <iconify-icon icon="fa-solid:file-csv" class="icon text-xl line-height-1"></iconify-icon>
                             CSV
                         </button>
                         <button wire:click="exportPdf"
-                            class="btn border border-neutral-200 text-neutral-500 hover:bg-neutral-200 text-dark rounded-lg px-5 py-[11px]">
+                            class="btn border border-neutral-200 text-neutral-500 hover:bg-neutral-200 text-dark rounded-lg px-5 py-[11px] text-sm">
                             <iconify-icon icon="fa-solid:file-pdf" class="icon text-xl line-height-1"></iconify-icon>
                             PDF
                         </button>
                         <button wire:click="$set('viewMode', 'list')"
-                            class="btn btn-sm {{ $viewMode == 'list' ? 'bg-primary-600 text-white' : 'bg-neutral-200 text-neutral-600' }} rounded-lg flex items-center justify-center p-3">
+                            class="btn btn-sm {{ $viewMode == 'list' ? 'bg-primary-600 text-white' : 'bg-neutral-200 text-neutral-600' }} rounded-lg flex items-center justify-center p-3 text-sm">
                             <iconify-icon icon="heroicons:list-bullet" class="text-xl"></iconify-icon>
                         </button>
                         <button wire:click="$set('viewMode', 'grid')"
-                            class="btn btn-sm {{ $viewMode == 'grid' ? 'bg-primary-600 text-white' : 'bg-neutral-200 text-neutral-600' }} rounded-lg flex items-center justify-center p-3">
+                            class="btn btn-sm {{ $viewMode == 'grid' ? 'bg-primary-600 text-white' : 'bg-neutral-200 text-neutral-600' }} rounded-lg flex items-center justify-center p-3 text-sm">
                             <iconify-icon icon="heroicons:squares-2x2" class="text-xl"></iconify-icon>
                         </button>
                         <button wire:click="create"
-                            class="btn bg-info-600 hover:bg-info-700 text-white rounded-lg px-5 py-[11px]">
+                            class="btn bg-info-600 hover:bg-info-700 text-white rounded-lg px-5 py-[11px] text-sm">
                             <iconify-icon icon="ic:baseline-plus" class="icon text-xl line-height-1"></iconify-icon>
                             Add New User
                         </button>
@@ -78,8 +78,9 @@
                                             <td>{{ $user->created_at->format('d M Y') }}</td>
                                             <td>
                                                 <div class="flex items-center">
-                                                    <img src="{{ asset('assets/images/user.png') }}" alt=""
-                                                        class="w-10 h-10 rounded-full shrink-0 me-2 overflow-hidden">
+                                                    <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('assets/images/user.png') }}"
+                                                        alt=""
+                                                        class="w-10 h-10 rounded-full shrink-0 me-2 object-cover overflow-hidden">
                                                     <div class="grow">
                                                         <span
                                                             class="text-base mb-0 font-normal text-secondary-light">{{ $user->name }}</span>
@@ -159,10 +160,15 @@
                                         </div>
 
                                         <div class="pe-6 pb-4 ps-6 text-center mt-[-50px]">
-                                            <div
-                                                class="w-[100px] h-[100px] mx-auto rounded-full border-[2px] border-white dark:border-neutral-700 bg-primary-100 flex items-center justify-center text-primary-600 text-3xl font-bold shadow-sm">
-                                                {{ strtoupper(substr($user->name, 0, 1)) }}
-                                            </div>
+                                            @if ($user->image)
+                                                <img src="{{ asset('storage/' . $user->image) }}" alt=""
+                                                    class="w-[100px] h-[100px] mx-auto rounded-full border-[2px] border-white dark:border-neutral-700 object-cover shadow-sm">
+                                            @else
+                                                <div
+                                                    class="w-[100px] h-[100px] mx-auto rounded-full border-[2px] border-white dark:border-neutral-700 bg-primary-100 flex items-center justify-center text-primary-600 text-3xl font-bold shadow-sm">
+                                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                                </div>
+                                            @endif
                                             <h6 class="text-lg mb-0 mt-3 font-semibold text-neutral-900 dark:text-white">
                                                 {{ $user->name }}
                                             </h6>

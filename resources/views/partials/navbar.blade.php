@@ -72,8 +72,8 @@
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.outside="open = false"
                         class="flex justify-center items-center rounded-full" type="button">
-                        <img src="{{ asset('assets/images/user.png') }}" alt="image"
-                            class="w-10 h-10 object-fit-cover rounded-full">
+                        <img src="{{ Auth::user()->image ? asset('storage/' . Auth::user()->image) : asset('assets/images/user.png') }}"
+                            alt="image" class="w-10 h-10 object-cover rounded-full">
                     </button>
                     <div x-show="open" style="display: none;"
                         class="z-10 absolute right-0 top-full mt-2 bg-white dark:bg-neutral-700 rounded-lg shadow-lg dropdown-menu-sm p-3 min-w-[200px]"
@@ -93,14 +93,14 @@
                             <ul class="flex flex-col">
                                 <li>
                                     <a class="text-black px-0 py-2 hover:text-primary-600 flex items-center gap-4"
-                                        href="#">
+                                        href="{{ route('view-profile') }}">
                                         <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon> My
                                         Profile
                                     </a>
                                 </li>
                                 <li>
                                     <a class="text-black px-0 py-2 hover:text-danger-600 flex items-center gap-4"
-                                        href="#">
+                                        href="{{ route('logout') }}">
                                         <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Log Out
                                     </a>
                                 </li>

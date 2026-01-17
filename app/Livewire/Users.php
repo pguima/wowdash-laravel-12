@@ -13,6 +13,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 class Users extends Component
 {
@@ -35,6 +37,8 @@ class Users extends Component
     public $designation_id;
     public $status = 'Active';
     public $role = 'User';
+    public $image;
+    public $currentImage;
 
     // UI State
     public $isOffcanvasOpen = false;
@@ -111,6 +115,7 @@ class Users extends Component
             'designation_id' => 'nullable|exists:designations,id',
             'status' => ['required', Rule::enum(UserStatus::class)],
             'role' => ['required', Rule::enum(UserRole::class)],
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Max 2MB
         ];
 
         if (!$this->userId) {
@@ -124,13 +129,25 @@ class Users extends Component
             'email' => $this->email,
             'department_id' => $this->department_id,
             'designation_id' => $this->designation_id,
-
             'status' => $this->status,
             'role' => $this->role,
         ];
 
         if ($this->password) {
             $data['password'] = bcrypt($this->password);
+        }
+
+        // Handle image upload
+        if ($this->image instanceof UploadedFile) {
+            $user = $this->userId ? User::find($this->userId) : new User();
+            
+            // Delete old image if exists
+            if ($user->image) {
+                $user->deleteImage();
+            }
+            
+            // Upload new image
+            $data['image'] = $user->uploadImage($this->image);
         }
 
         if ($this->userId) {
@@ -151,9 +168,23 @@ class Users extends Component
 
     public function delete()
     {
-        if ($this->userToDeleteId) {
-            User::destroy($this->userToDeleteId);
+        try {
+            if ($this->userToDeleteId) {
+                $user = User::findOrFail($this->userToDeleteId);
+                
+                // Delete user image if exists
+                if ($user->image) {
+                    $user->deleteImage();
+                }
+                
+                User::destroy($this->userToDeleteId);
+                session()->flash('success', 'User deleted successfully');
+            }
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to delete user: ' . $e->getMessage());
+            Log::error('User deletion failed: ' . $e->getMessage());
         }
+        
         $this->closeDeleteModal();
     }
 
@@ -177,44 +208,61 @@ class Users extends Component
         $this->password = '';
         $this->department_id = '';
         $this->designation_id = '';
-
         $this->status = 'Active';
         $this->role = 'User';
+        $this->image = null;
+        $this->currentImage = null;
         $this->resetErrorBag();
     }
 
     public function exportPdf()
     {
-        $users = User::all();
-        $pdf = Pdf::loadView('exports.users-pdf', ['users' => $users]);
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->output();
-        }, 'users.pdf');
+        try {
+            // Use chunking to avoid memory exhaustion with large datasets
+            $users = collect();
+            User::chunk(100, function ($chunk) use ($users) {
+                $chunk->load(['department', 'designation']);
+                $users->push(...$chunk);
+            });
+            
+            $pdf = Pdf::loadView('exports.users-pdf', ['users' => $users]);
+            
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->output();
+            }, 'users.pdf');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to export PDF: ' . $e->getMessage());
+            return redirect()->route('users');
+        }
     }
 
     public function exportCsv()
     {
-        return response()->streamDownload(function () {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'Name', 'Email', 'Department', 'Designation', 'Status', 'Role', 'Created At']);
+        try {
+            return response()->streamDownload(function () {
+                $handle = fopen('php://output', 'w');
+                fputcsv($handle, ['ID', 'Name', 'Email', 'Department', 'Designation', 'Status', 'Role', 'Created At']);
 
-            User::chunk(100, function ($users) use ($handle) {
-                foreach ($users as $user) {
-                    fputcsv($handle, [
-                        $user->id,
-                        $user->name,
-                        $user->email,
-                        optional($user->department)->name,
-                        optional($user->designation)->name,
+                User::chunk(100, function ($users) use ($handle) {
+                    foreach ($users as $user) {
+                        fputcsv($handle, [
+                            $user->id,
+                            $user->name,
+                            $user->email,
+                            optional($user->department)->name,
+                            optional($user->designation)->name,
+                            $user->status,
+                            $user->role,
+                            $user->created_at,
+                        ]);
+                    }
+                });
 
-                        $user->status,
-                        $user->role,
-                        $user->created_at,
-                    ]);
-                }
-            });
-
-            fclose($handle);
-        }, 'users.csv');
+                fclose($handle);
+            }, 'users.csv');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to export CSV: ' . $e->getMessage());
+            return redirect()->route('users');
+        }
     }
 }

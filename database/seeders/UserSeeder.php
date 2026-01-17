@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 
@@ -25,11 +26,14 @@ class UserSeeder extends Seeder
         $departments = DB::table('departments')->pluck('id', 'name');
         $designations = DB::table('designations')->pluck('id', 'name');
 
+        // Generate secure default password or use environment variable
+        $defaultPassword = env('DEFAULT_SEEDER_PASSWORD', Str::random(16));
+
         $users = [
             [
                 'name' => 'System Administrator',
                 'email' => 'admin@wowdash.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make($defaultPassword),
                 'department_id' => $departments['Information Technology'] ?? null,
                 'designation_id' => $designations['IT Manager'] ?? null,
                 'status' => UserStatus::Active->value,
@@ -41,7 +45,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'John Developer',
                 'email' => 'john@wowdash.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make($defaultPassword),
                 'department_id' => $departments['Information Technology'] ?? null,
                 'designation_id' => $designations['Senior Software Developer'] ?? null,
                 'status' => UserStatus::Active->value,
@@ -53,7 +57,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Jane Manager',
                 'email' => 'jane@wowdash.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make($defaultPassword),
                 'department_id' => $departments['Human Resources'] ?? null,
                 'designation_id' => $designations['HR Manager'] ?? null,
                 'status' => UserStatus::Active->value,
@@ -65,7 +69,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Mike Sales',
                 'email' => 'mike@wowdash.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make($defaultPassword),
                 'department_id' => $departments['Sales'] ?? null,
                 'designation_id' => $designations['Sales Manager'] ?? null,
                 'status' => UserStatus::Active->value,
@@ -77,7 +81,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Sarah Finance',
                 'email' => 'sarah@wowdash.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make($defaultPassword),
                 'department_id' => $departments['Finance'] ?? null,
                 'designation_id' => $designations['Finance Manager'] ?? null,
                 'status' => UserStatus::Active->value,
@@ -95,6 +99,14 @@ class UserSeeder extends Seeder
 
         if (!empty($validUsers)) {
             DB::table('users')->insert($validUsers);
+            
+            // Log credentials for development environment
+            if (app()->environment('local')) {
+                $this->command->info('Default user credentials created:');
+                $this->command->info('Email: admin@wowdash.com');
+                $this->command->info('Password: ' . $defaultPassword);
+                $this->command->warn('Please change these passwords in production!');
+            }
         }
     }
 }

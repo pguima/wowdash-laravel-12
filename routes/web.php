@@ -24,6 +24,6 @@ Route::get('/logout', function () {
     return redirect()->route('login');
 })->name('logout');
 
-Route::get('/users', Users::class)->middleware('auth')->name('users');
-Route::get('/settings', \App\Livewire\Settings::class)->middleware('auth')->name('settings');
+Route::get('/users', Users::class)->middleware(['auth', 'admin'])->name('users');
+Route::get('/settings', \App\Livewire\Settings::class)->middleware(['auth', 'admin'])->name('settings');
 Route::get('/view-profile', \App\Livewire\ViewProfile::class)->middleware('auth')->name('view-profile');

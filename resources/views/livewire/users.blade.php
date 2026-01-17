@@ -87,11 +87,11 @@
                                             <td><span
                                                     class="text-base mb-0 font-normal text-secondary-light">{{ $user->email }}</span>
                                             </td>
-                                            <td>{{ $user->department ?? '-' }}</td>
-                                            <td>{{ $user->designation ?? '-' }}</td>
-                                            <td>{{ $user->role ?? '-' }}</td>
+                                            <td>{{ optional($user->department)->name ?? '-' }}</td>
+                                            <td>{{ optional($user->designation)->name ?? '-' }}</td>
+                                            <td>{{ $user->role?->value ?? '-' }}</td>
                                             <td class="text-center">
-                                                @if($user->status == 'Active')
+                                                @if($user->status?->value === 'Active')
                                                     <span
                                                         class="bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 border border-success-600 px-6 py-1.5 rounded font-medium text-sm">{{ __('Active') }}</span>
                                                 @else
@@ -179,7 +179,7 @@
                                                     class="text-center w-1/2 border-e border-neutral-200 dark:border-neutral-600/50">
                                                     <h6
                                                         class="text-base mb-0 font-medium text-neutral-700 dark:text-neutral-200">
-                                                        {{ $user->department ?? '-' }}
+                                                        {{ optional($user->department)->name ?? '-' }}
                                                     </h6>
                                                     <span
                                                         class="text-secondary-light dark:text-neutral-500 text-xs">{{ __('Department') }}</span>
@@ -187,7 +187,7 @@
                                                 <div class="text-center w-1/2">
                                                     <h6
                                                         class="text-base mb-0 font-medium text-neutral-700 dark:text-neutral-200">
-                                                        {{ $user->designation ?? '-' }}
+                                                        {{ optional($user->designation)->name ?? '-' }}
                                                     </h6>
                                                     <span
                                                         class="text-secondary-light dark:text-neutral-500 text-xs">{{ __('Designation') }}</span>
@@ -195,7 +195,7 @@
                                             </div>
 
                                             <div class="mt-4">
-                                                @if ($user->status == 'Active')
+                                                @if ($user->status?->value === 'Active')
                                                     <span
                                                         class="badge bg-success-subtle text-success-600 px-3 py-1 rounded-full text-sm font-medium border border-success-200 dark:border-success-800/30">{{ __('Active') }}</span>
                                                 @else
@@ -271,26 +271,26 @@
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">{{ __('Department') }}</label>
-                        <select wire:model.live="department"
+                        <select wire:model.live="department_id"
                             class="form-select w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
                             <option value="">{{ __('Select Department') }}</option>
-                            @foreach($departmentsList as $dept)
-                                <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                            @foreach($this->departmentsList as $dept)
+                                <option value="{{ $dept->id }}">{{ $dept->name }}</option>
                             @endforeach
                         </select>
-                        @error('department') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
+                        @error('department_id') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">{{ __('Designation') }}</label>
-                        <select wire:model="designation"
+                        <select wire:model="designation_id"
                             class="form-select w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
                             <option value="">{{ __('Select Designation') }}</option>
                             @foreach($designationsList as $desig)
-                                <option value="{{ $desig->name }}">{{ $desig->name }}</option>
+                                <option value="{{ $desig->id }}">{{ $desig->name }}</option>
                             @endforeach
                         </select>
-                        @error('designation') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
+                        @error('designation_id') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="mb-4">

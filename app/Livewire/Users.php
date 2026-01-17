@@ -7,18 +7,22 @@ use App\Models\Department;
 use App\Models\Designation;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Computed;
 use Illuminate\Validation\Rule;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Enums\UserRole;
+use App\Enums\UserStatus;
 
 class Users extends Component
 {
     use WithPagination;
 
-    public $departmentsList;
+    // public $departmentsList; // Removed in favor of computed property
     public $designationsList = [];
 
     public $search = '';
+
     public $perPage = 10;
     public $viewMode = 'list';
 
@@ -27,8 +31,8 @@ class Users extends Component
     public $name;
     public $email;
     public $password; // Only for creation/update if needed
-    public $department;
-    public $designation;
+    public $department_id;
+    public $designation_id;
     public $status = 'Active';
     public $role = 'User';
 
@@ -39,23 +43,19 @@ class Users extends Component
 
     protected $queryString = ['search'];
 
-    public function updatedDepartment($value)
+    #[Computed]
+    public function departmentsList()
+    {
+        return Department::orderBy('name')->get();
+    }
+
+    public function updatedDepartmentId($value)
     {
         // Reset designation
-        $this->designation = '';
+        $this->designation_id = '';
 
         if (!empty($value)) {
-            // Find the department ID from the name since previously we stored name.
-            // Wait, previous request was to store Name. But now designations link to Department ID.
-            // The relationship is DBFK but Users table stores string 'department' and 'designation'.
-            // To filter Designations effectively, we need the Department ID.
-            // Let's assume we fetch Department ID where name matches $value.
-            $dept = Department::where('name', $value)->first();
-            if ($dept) {
-                $this->designationsList = Designation::where('department_id', $dept->id)->orderBy('name')->get();
-            } else {
-                $this->designationsList = [];
-            }
+            $this->designationsList = Designation::where('department_id', $value)->orderBy('name')->get();
         } else {
             $this->designationsList = [];
         }
@@ -63,16 +63,13 @@ class Users extends Component
 
     public function render()
     {
-        $this->departmentsList = Department::orderBy('name')->get();
         // Initial load for edit mode or if department is selected
-        if ($this->department && empty($this->designationsList)) {
-            $dept = Department::where('name', $this->department)->first();
-            if ($dept) {
-                $this->designationsList = Designation::where('department_id', $dept->id)->orderBy('name')->get();
-            }
+        if ($this->department_id && empty($this->designationsList)) {
+            $this->designationsList = Designation::where('department_id', $this->department_id)->orderBy('name')->get();
         }
 
         $users = User::query()
+            ->with(['department', 'designation'])
             ->where('name', 'like', '%' . $this->search . '%')
             ->orWhere('email', 'like', '%' . $this->search . '%')
             ->orderBy('id', 'desc')
@@ -96,8 +93,8 @@ class Users extends Component
         $this->userId = $user->id;
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->department = $user->department;
-        $this->designation = $user->designation;
+        $this->department_id = $user->department_id;
+        $this->designation_id = $user->designation_id;
 
         $this->status = $user->status;
         $this->role = $user->role;
@@ -110,11 +107,10 @@ class Users extends Component
         $validationRules = [
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($this->userId)],
-            'department' => 'nullable|string',
-            'designation' => 'nullable|string',
-
-            'status' => 'required|in:Active,Inactive',
-            'role' => 'required|in:Admin,User',
+            'department_id' => 'nullable|exists:departments,id',
+            'designation_id' => 'nullable|exists:designations,id',
+            'status' => ['required', Rule::enum(UserStatus::class)],
+            'role' => ['required', Rule::enum(UserRole::class)],
         ];
 
         if (!$this->userId) {
@@ -126,8 +122,8 @@ class Users extends Component
         $data = [
             'name' => $this->name,
             'email' => $this->email,
-            'department' => $this->department,
-            'designation' => $this->designation,
+            'department_id' => $this->department_id,
+            'designation_id' => $this->designation_id,
 
             'status' => $this->status,
             'role' => $this->role,
@@ -179,8 +175,8 @@ class Users extends Component
         $this->name = '';
         $this->email = '';
         $this->password = '';
-        $this->department = '';
-        $this->designation = '';
+        $this->department_id = '';
+        $this->designation_id = '';
 
         $this->status = 'Active';
         $this->role = 'User';
@@ -208,8 +204,8 @@ class Users extends Component
                         $user->id,
                         $user->name,
                         $user->email,
-                        $user->department,
-                        $user->designation,
+                        optional($user->department)->name,
+                        optional($user->designation)->name,
 
                         $user->status,
                         $user->role,

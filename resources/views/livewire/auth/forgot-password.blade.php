@@ -2,7 +2,14 @@
     <section class="bg-white dark:bg-neutral-700 flex flex-wrap min-h-[100vh]">
         <div class="lg:w-1/2 lg:block hidden">
             <div class="flex items-center flex-col h-full justify-center">
-                <img src="{{ asset('assets/images/auth/forgot-pass-img.png') }}" alt="">
+                @php
+                    $forgotBgLight = \App\Models\Setting::where('key', 'forgot_bg_light')->value('value');
+                    $forgotBgDark = \App\Models\Setting::where('key', 'forgot_bg_dark')->value('value');
+                @endphp
+                <img src="{{ $forgotBgLight ? asset('storage/' . $forgotBgLight) : asset('assets/images/auth/forgot-pass-img.png') }}"
+                    alt="" class="block dark:hidden">
+                <img src="{{ $forgotBgDark ? asset('storage/' . $forgotBgDark) : asset('assets/images/auth/forgot-pass-img.png') }}"
+                    alt="" class="hidden dark:block">
             </div>
         </div>
         <div class="lg:w-1/2 py-8 px-6 flex flex-col justify-center">

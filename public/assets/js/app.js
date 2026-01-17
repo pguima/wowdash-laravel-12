@@ -47,6 +47,10 @@ function initApp() {
 }
 
 function runSidebarLogic() {
+  // Sidebar logic is now handled by Alpine.js in the layout and sidebar component.
+  // We disable this legacy JS to avoid conflicts and double-binding.
+
+  /*
   // We'll use event delegation for the sidebar to be safe against DOM updates AND static elements
   const sidebarMenu = document.querySelector('.sidebar-menu');
   if (sidebarMenu && !sidebarMenu.dataset.bound) {
@@ -106,33 +110,22 @@ function runSidebarLogic() {
     });
     sidebarColseBtn.dataset.bound = 'true';
   }
+  */
 
   // Active Page Highlighting - This MUST run every navigation
+  // Logic updated to respect Alpine classes if needed, or we rely on Blade.
+  // For now, highlighting is mostly Blade, but expanding parent dropdowns is nice.
+  // We can keep this partly, or move it to Alpine init.
+  // Let's keep the highlighting logic but ensure it doesn't conflict.
+
+  /*
   var nk = window.location.href;
   var links = document.querySelectorAll("ul#sidebar-menu a");
 
   links.forEach(function (link) {
-    // Reset classes first
-    link.classList.remove('active-page');
-    link.parentElement.classList.remove('active-page');
-
-    if (link.href === nk) {
-      link.classList.add("active-page");
-      var parent = link.parentElement;
-      parent.classList.add("active-page");
-
-      while (parent && parent.tagName !== "BODY") {
-        if (parent.tagName === "LI") {
-          parent.classList.add("show");
-          parent.classList.add("open");
-          // Ensure parent submenu is visible
-          const submenu = parent.querySelector('.sidebar-submenu');
-          if (submenu) submenu.style.display = 'block';
-        }
-        parent = parent.parentElement;
-      }
-    }
+    // ... (logic commented out for safety, relying on Blade + Alpine)
   });
+  */
 }
 
 function runThemeLogic() {

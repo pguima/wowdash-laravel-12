@@ -5,7 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Wowdash - Laravel')</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}" sizes="16x16">
+    @php
+        $favicon = \App\Models\Setting::where('key', 'favicon')->value('value');
+    @endphp
+    <link rel="icon" type="image/png"
+        href="{{ $favicon ? asset('storage/' . $favicon) : asset('assets/images/favicon.png') }}" sizes="16x16">
     <!-- google fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
@@ -39,12 +43,23 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 
     @livewireStyles
+    <script>
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
 
 <body class="dark:bg-neutral-800 bg-neutral-100 dark:text-white" x-data="{ 
-          isSidebarActive: false, 
+          isSidebarActive: localStorage.getItem('isSidebarActive') === 'true', 
           isMobileSidebarOpen: false,
-          toggleSidebar() { this.isSidebarActive = !this.isSidebarActive },
+          toggleSidebar() { 
+              this.isSidebarActive = !this.isSidebarActive;
+              localStorage.setItem('isSidebarActive', this.isSidebarActive);
+          },
           toggleMobileSidebar() { this.isMobileSidebarOpen = !this.isMobileSidebarOpen }
       }" :class="{ 'overlay-active': isMobileSidebarOpen }">
 

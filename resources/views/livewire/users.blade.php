@@ -65,6 +65,7 @@
                                         <th scope="col">{{ __('Email') }}</th>
                                         <th scope="col">{{ __('Department') }}</th>
                                         <th scope="col">{{ __('Designation') }}</th>
+                                        <th scope="col">{{ __('Role') }}</th>
                                         <th scope="col" class="text-center">{{ __('Status') }}</th>
                                         <th scope="col" class="text-center">{{ __('Action') }}</th>
                                     </tr>
@@ -88,6 +89,7 @@
                                             </td>
                                             <td>{{ $user->department ?? '-' }}</td>
                                             <td>{{ $user->designation ?? '-' }}</td>
+                                            <td>{{ $user->role ?? '-' }}</td>
                                             <td class="text-center">
                                                 @if($user->status == 'Active')
                                                     <span
@@ -269,16 +271,36 @@
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">{{ __('Department') }}</label>
-                        <input type="text" wire:model="department"
-                            class="form-control w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
+                        <select wire:model.live="department"
+                            class="form-select w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
+                            <option value="">{{ __('Select Department') }}</option>
+                            @foreach($departmentsList as $dept)
+                                <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                            @endforeach
+                        </select>
                         @error('department') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">{{ __('Designation') }}</label>
-                        <input type="text" wire:model="designation"
-                            class="form-control w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
+                        <select wire:model="designation"
+                            class="form-select w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
+                            <option value="">{{ __('Select Designation') }}</option>
+                            @foreach($designationsList as $desig)
+                                <option value="{{ $desig->name }}">{{ $desig->name }}</option>
+                            @endforeach
+                        </select>
                         @error('designation') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">{{ __('Role') }}</label>
+                        <select wire:model="role"
+                            class="form-select w-full rounded-lg border-neutral-200 dark:bg-neutral-700 dark:border-neutral-600">
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                        @error('role') <span class="text-danger-600 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="mb-4">

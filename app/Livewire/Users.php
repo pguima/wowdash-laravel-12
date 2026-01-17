@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use App\Models\Department;
+use App\Models\Designation;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Validation\Rule;
@@ -12,6 +14,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class Users extends Component
 {
     use WithPagination;
+
+    public $departmentsList;
+    public $designationsList = [];
 
     public $search = '';
     public $perPage = 10;
@@ -25,6 +30,7 @@ class Users extends Component
     public $department;
     public $designation;
     public $status = 'Active';
+    public $role = 'User';
 
     // UI State
     public $isOffcanvasOpen = false;
@@ -33,13 +39,39 @@ class Users extends Component
 
     protected $queryString = ['search'];
 
-    public function updatedSearch()
+    public function updatedDepartment($value)
     {
-        $this->resetPage();
+        // Reset designation
+        $this->designation = '';
+
+        if (!empty($value)) {
+            // Find the department ID from the name since previously we stored name.
+            // Wait, previous request was to store Name. But now designations link to Department ID.
+            // The relationship is DBFK but Users table stores string 'department' and 'designation'.
+            // To filter Designations effectively, we need the Department ID.
+            // Let's assume we fetch Department ID where name matches $value.
+            $dept = Department::where('name', $value)->first();
+            if ($dept) {
+                $this->designationsList = Designation::where('department_id', $dept->id)->orderBy('name')->get();
+            } else {
+                $this->designationsList = [];
+            }
+        } else {
+            $this->designationsList = [];
+        }
     }
 
     public function render()
     {
+        $this->departmentsList = Department::orderBy('name')->get();
+        // Initial load for edit mode or if department is selected
+        if ($this->department && empty($this->designationsList)) {
+            $dept = Department::where('name', $this->department)->first();
+            if ($dept) {
+                $this->designationsList = Designation::where('department_id', $dept->id)->orderBy('name')->get();
+            }
+        }
+
         $users = User::query()
             ->where('name', 'like', '%' . $this->search . '%')
             ->orWhere('email', 'like', '%' . $this->search . '%')
@@ -66,7 +98,9 @@ class Users extends Component
         $this->email = $user->email;
         $this->department = $user->department;
         $this->designation = $user->designation;
+
         $this->status = $user->status;
+        $this->role = $user->role;
 
         $this->isOffcanvasOpen = true;
     }
@@ -78,7 +112,9 @@ class Users extends Component
             'email' => ['required', 'email', Rule::unique('users')->ignore($this->userId)],
             'department' => 'nullable|string',
             'designation' => 'nullable|string',
+
             'status' => 'required|in:Active,Inactive',
+            'role' => 'required|in:Admin,User',
         ];
 
         if (!$this->userId) {
@@ -92,7 +128,9 @@ class Users extends Component
             'email' => $this->email,
             'department' => $this->department,
             'designation' => $this->designation,
+
             'status' => $this->status,
+            'role' => $this->role,
         ];
 
         if ($this->password) {
@@ -143,7 +181,9 @@ class Users extends Component
         $this->password = '';
         $this->department = '';
         $this->designation = '';
+
         $this->status = 'Active';
+        $this->role = 'User';
         $this->resetErrorBag();
     }
 
@@ -160,7 +200,7 @@ class Users extends Component
     {
         return response()->streamDownload(function () {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'Name', 'Email', 'Department', 'Designation', 'Status', 'Created At']);
+            fputcsv($handle, ['ID', 'Name', 'Email', 'Department', 'Designation', 'Status', 'Role', 'Created At']);
 
             User::chunk(100, function ($users) use ($handle) {
                 foreach ($users as $user) {
@@ -170,7 +210,9 @@ class Users extends Component
                         $user->email,
                         $user->department,
                         $user->designation,
+
                         $user->status,
+                        $user->role,
                         $user->created_at,
                     ]);
                 }

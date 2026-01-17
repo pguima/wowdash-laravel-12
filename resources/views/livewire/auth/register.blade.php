@@ -1,14 +1,28 @@
 <section class="bg-white dark:bg-dark-2 flex flex-wrap min-h-[100vh]">
     <div class="lg:w-1/2 lg:block hidden">
         <div class="flex items-center flex-col h-full justify-center">
-            <img src="{{ asset('assets/images/auth/auth-img.png') }}" alt="">
+            @php
+                $authBgLight = \App\Models\Setting::where('key', 'auth_bg_light')->value('value');
+                $authBgDark = \App\Models\Setting::where('key', 'auth_bg_dark')->value('value');
+            @endphp
+            <img src="{{ $authBgLight ? asset('storage/' . $authBgLight) : asset('assets/images/auth/auth-img.png') }}"
+                alt="" class="block dark:hidden">
+            <img src="{{ $authBgDark ? asset('storage/' . $authBgDark) : asset('assets/images/auth/auth-img.png') }}"
+                alt="" class="hidden dark:block">
         </div>
     </div>
     <div class="lg:w-1/2 py-8 px-6 flex flex-col justify-center">
         <div class="lg:max-w-[464px] mx-auto w-full">
             <div>
                 <a href="{{ route('home') }}" class="mb-2.5 max-w-[290px]">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="">
+                    @php
+                        $logoLight = \App\Models\Setting::where('key', 'logo_light')->value('value');
+                        $logoDark = \App\Models\Setting::where('key', 'logo_dark')->value('value');
+                    @endphp
+                    <img src="{{ $logoLight ? asset('storage/' . $logoLight) : asset('assets/images/logo.png') }}"
+                        alt="" class="block dark:hidden">
+                    <img src="{{ $logoDark ? asset('storage/' . $logoDark) : asset('assets/images/logo-light.png') }}"
+                        alt="" class="hidden dark:block">
                 </a>
                 <h4 class="mb-3">Sign Up to your Account</h4>
                 <p class="mb-8 text-secondary-light text-lg">Welcome back! please enter your detail</p>
